@@ -13,43 +13,37 @@ func CreateTurn(data *model.Data)model.Turn{
 }
 
 func Analyse(turn *model.Turn){
-
-	analyseDecks(&turn.Alice)
-	analyseDecks(&turn.Bob)
-
-	getLevelByDeck(&turn.Alice)
-	getLevelByDeck(&turn.Bob)
-
 	if turn.Alice.Pokers[6].Face == 0{
-
+		analysesWithZeroCard(&turn.Alice)
+	}else {
+		analyseDecks(&turn.Alice)
+		getLevelByDeck(&turn.Alice)
+		if !turn.Alice.Finish{
+			analyseFlush(&turn.Alice)
+		}
+		if !turn.Alice.Finish{
+			analyseContinue(&turn.Alice)
+		}
+		if !turn.Alice.Finish{
+			sortByDeck(&turn.Alice)
+		}
 	}
 
-	if !turn.Alice.Finish{
-		analyseFlush(&turn.Alice)
+	if turn.Bob.Pokers[6].Face == 0{
+		analysesWithZeroCard(&turn.Bob)
+	}else {
+		analyseDecks(&turn.Bob)
+		getLevelByDeck(&turn.Bob)
+		if !turn.Bob.Finish{
+			analyseFlush(&turn.Bob)
+		}
+		if !turn.Bob.Finish{
+			analyseContinue(&turn.Bob)
+		}
+		if !turn.Bob.Finish{
+			sortByDeck(&turn.Bob)
+		}
 	}
-
-	if !turn.Alice.Finish{
-		analyseContinue(&turn.Alice)
-	}
-
-	if !turn.Bob.Finish{
-		analyseFlush(&turn.Bob)
-	}
-
-	if !turn.Bob.Finish{
-		analyseContinue(&turn.Bob)
-	}
-
-	if !turn.Alice.Finish{
-		sortByDeck(&turn.Alice)
-	}
-	if !turn.Bob.Finish{
-		sortByDeck(&turn.Bob)
-	}
-
-
-
-
 }
 
 func JudgeWinner(turn *model.Turn)*model.Turn{
@@ -160,7 +154,6 @@ func sortByDeck(handCardsCards *model.HandCards) {
 // analyseFlush 判断同花
 func analyseFlush (handCards *model.HandCards){
 	flush, color,length := tool.CheckFlush(handCards.Pokers)
-	if handCards.Pokers[0].Face == 15{handCards.Pokers[0].Color = color}
 	if flush {
 		newPokers := make([]model.Poker, 0, 7)
 		for i := range handCards.Pokers {

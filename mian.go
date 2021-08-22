@@ -12,8 +12,6 @@ func main () {
 	start := time.Now()
 	for i := range data {
 		turn := handler.CreateTurn(&data[i])
-		if turn.Alice.Pokers[6].Face == 0{continue}
-		if turn.Bob.Pokers[6].Face == 0{continue}
 		handler.Analyse(&turn)
 		handler.JudgeWinner(&turn)
 		if turn.Winner != data[i].Result {

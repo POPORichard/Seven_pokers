@@ -26,8 +26,8 @@ func createPokers(data string)(turn model.Turn){
 func TestCheckContinueLength(t *testing.T) {
 	turn := createPokers(data)
 	turn.Alice.Pokers = Sort(turn.Alice.Pokers)
-	bool,pointer,result,cardZero := CheckContinueLength(turn.Alice.Pokers)
-	fmt.Println(bool,pointer,result,cardZero)
+	bool,pointer,result:= CheckContinueLength(turn.Alice.Pokers)
+	fmt.Println(bool,pointer,result)
 
 }
 

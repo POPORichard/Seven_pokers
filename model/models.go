@@ -44,3 +44,8 @@ type Deck struct {
 	Quantity int
 	Pinter int
 }
+
+type Series struct {
+	Length int
+	Pinter int
+}
