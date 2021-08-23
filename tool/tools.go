@@ -71,6 +71,7 @@ func Sort(pokers []model.Poker)[]model.Poker{
 	return pokers
 }
 
+// CheckFlush 检查是否满足同花条件
 func CheckFlush(pokers []model.Poker)(isFlush bool, color string,length int){
 	isFlush = false
 	hasCardZero := false
@@ -116,6 +117,8 @@ func CheckFlush(pokers []model.Poker)(isFlush bool, color string,length int){
 
 }
 
+// CheckContinueLength 判断一组牌是否连续
+// 返回是否连续的bool\开始连续的指针int\连续的长度int
 func CheckContinueLength(pokers []model.Poker)(bool,int,int){
 	length := len(pokers)
 	result := 1
@@ -146,6 +149,7 @@ func CheckContinueLength(pokers []model.Poker)(bool,int,int){
 	return false,pointer,result
 }
 
+// GetDeck 获得一组牌的牌组Decks
 func GetDeck (pokers []model.Poker)(decks []model.Deck){
 	length := len(pokers)
 	quantity := 1
@@ -174,6 +178,7 @@ func GetDeck (pokers []model.Poker)(decks []model.Deck){
 	return
 }
 
+// SortDeck 对牌组进行排序使相同牌数多的牌组排在前面\次要排序按牌面大小排序
 func SortDeck (decks []model.Deck)[]model.Deck{
 	newDecks := make([]model.Deck,0,7)
 	length := len(decks)
@@ -193,6 +198,8 @@ func SortDeck (decks []model.Deck)[]model.Deck{
 	return newDecks
 }
 
+// CompareEachCard 从前往后依次比较每张扑克
+// 若第一组大则返回1\若第二组大则返回2\若相同则返回0
 func CompareEachCard(cardsA,cardsB []model.Poker)int{
 	for i := range cardsA{
 		if i == 5{
