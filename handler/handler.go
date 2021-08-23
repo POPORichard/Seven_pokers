@@ -16,10 +16,10 @@ func CreateTurn(data *model.Data)model.Turn{
 func Analyse(turn *model.Turn){
 	// 处理Alice的牌
 	if turn.Alice.Pokers[6].Face == 0{
-		analysesWithZeroCard(&turn.Alice)
+		turn.Alice = analysesWithZeroCard(turn.Alice)
 	}else {
 		analyseDecks(&turn.Alice)
-		getLevelByDeck(&turn.Alice)
+		turn.Alice = getLevelByDeck(turn.Alice)
 		if !turn.Alice.Finish{
 			analyseFlush(&turn.Alice)
 		}
@@ -33,10 +33,10 @@ func Analyse(turn *model.Turn){
 
 	// 处理Bob的牌
 	if turn.Bob.Pokers[6].Face == 0{
-		analysesWithZeroCard(&turn.Bob)
+		turn.Bob = analysesWithZeroCard(turn.Bob)
 	}else {
 		analyseDecks(&turn.Bob)
-		getLevelByDeck(&turn.Bob)
+		turn.Bob = getLevelByDeck(turn.Bob)
 		if !turn.Bob.Finish{
 			analyseFlush(&turn.Bob)
 		}
@@ -67,7 +67,7 @@ func analyseDecks(handCards *model.HandCards){
 }
 
 // getLevelByDeck 根据Decks判断手牌等级
-func getLevelByDeck(handCards *model.HandCards){
+func getLevelByDeck(handCards model.HandCards) model.HandCards{
 	fourOfAKind := 0
 
 	two := 0
@@ -79,33 +79,30 @@ func getLevelByDeck(handCards *model.HandCards){
 	}
 	if fourOfAKind == 1{
 		handCards.Level = 8
-		//handCards.Finish = true
-		return
+		return handCards
 	}
 	if three == 2{
 		handCards.Level = 7
-		//handCards.Finish = true
-		return
+		return handCards
 	}
 	if three == 1 && two > 0{
 		handCards.Level = 7
-		//handCards.Finish =true
-		return
+		return handCards
 	}
 	if three == 1{
 		handCards.Level = 4
-		return
+		return handCards
 	}
 	if two > 1{
 		handCards.Level = 3
-		return
+		return handCards
 	}
 	if two == 1{
 		handCards.Level = 2
-		return
+		return handCards
 	}
 	handCards.Level = 1
-	return
+	return handCards
 
 }
 

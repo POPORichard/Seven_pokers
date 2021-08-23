@@ -6,24 +6,33 @@ import (
 )
 
 // analysesWithZeroCard 分析有赖子的牌
-func analysesWithZeroCard(handCards *model.HandCards) {
-	var tmpHandCards model.HandCards
-	tmpHandCards.Pokers = make([]model.Poker,0,7)
-	for i := range handCards.Pokers{
-		tmpHandCards.Pokers = append(tmpHandCards.Pokers,handCards.Pokers[i])
-	}
-	analyseDecksWithZeroCard(handCards)
-	tmpHandCards = analyseContinueWithCardZero(tmpHandCards)
-	if tmpHandCards.Level > handCards.Level {
-		*handCards = tmpHandCards
+func analysesWithZeroCard(handCards model.HandCards)model.HandCards {
+	var tmpHandCardsForDecks model.HandCards
+	var tmpHandCardsForSeries model.HandCards
+
+	tmpHandCardsForDecks.Pokers = make([]model.Poker,7,7)
+	tmpHandCardsForSeries.Pokers = make([]model.Poker,7,7)
+
+	copy(tmpHandCardsForDecks.Pokers,handCards.Pokers)
+	copy(tmpHandCardsForSeries.Pokers,handCards.Pokers)
+
+	tmpHandCardsForDecks = analyseDecksWithZeroCard(tmpHandCardsForDecks)
+	tmpHandCardsForDecks = getLevelByDeck(tmpHandCardsForDecks)
+
+	tmpHandCardsForSeries = analyseContinueWithCardZero(tmpHandCardsForSeries)
+
+	if tmpHandCardsForSeries.Level > tmpHandCardsForDecks.Level {
+		handCards = tmpHandCardsForSeries
 	}else {
-		sortByDeck(handCards)
+		sortByDeck(&tmpHandCardsForDecks)
+		handCards = tmpHandCardsForDecks
 	}
 
+	return handCards
 }
 
 // analyseDecksWithZeroCard 分析有赖子的牌的Decks
-func analyseDecksWithZeroCard(handCards *model.HandCards) {
+func analyseDecksWithZeroCard(handCards model.HandCards)model.HandCards {
 	finish := false
 	handCards.Deck = tool.GetDeck(handCards.Pokers)
 	decks := handCards.Deck
@@ -74,12 +83,13 @@ func analyseDecksWithZeroCard(handCards *model.HandCards) {
 
 	handCards.Pokers = tool.Sort(handCards.Pokers)
 	handCards.Deck = tool.GetDeck(handCards.Pokers)
-	getLevelByDeck(handCards)
+
+	return  handCards
 
 }
 
 // analyseContinueWithCardZero 分析带有赖子的牌的连续性并处理A
-func analyseContinueWithCardZero(handCards model.HandCards) (tmpHandCards model.HandCards) {
+func analyseContinueWithCardZero(handCards model.HandCards)(tmpHandCards model.HandCards) {
 	//因同花的等级高于顺子则先判断同花
 	flush, color, length := tool.CheckFlush(handCards.Pokers)
 	handCards.Pokers[6].Color = color
@@ -92,6 +102,7 @@ func analyseContinueWithCardZero(handCards model.HandCards) (tmpHandCards model.
 			}
 		}
 
+		// 这里可以在最开始处理A因没有重复的牌
 		if flushSeries[0].Face == 14 {
 			flushSeries = handleA(flushSeries)
 			flushSeries = tool.Sort(flushSeries)
@@ -200,11 +211,11 @@ func analyseContinueWithCardZero(handCards model.HandCards) (tmpHandCards model.
 
 	}
 
-
+	//在非同花的情况下需要注意重复的牌
 	series := analyseSeries(handCards.Pokers)
 	var tmpSeries []model.Series
 	length = len(handCards.Pokers)
-
+	// 根据series判断cardZero的插入位置
 	for i := range series {
 		if series[i].Length >4 {
 			if handCards.Pokers[length-1].Face == 0 {
@@ -316,9 +327,11 @@ func analyseContinueWithCardZero(handCards model.HandCards) (tmpHandCards model.
 		}
 	}
 
+	// 处理A
 	if handCards.Pokers[0].Face == 14 {
 		handCards.Pokers = handleA(handCards.Pokers)
 		handCards.Pokers = tool.Sort(handCards.Pokers)
+		//A被处理了
 		if handCards.Pokers[0].Face != 14{
 			tmpSeries = analyseSeries(handCards.Pokers)
 			target:=0
