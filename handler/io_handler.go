@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 )
-
+// ReadDataToModel 读取外部文件
 func ReadDataToModel(path string)[]model.Data{
 	bytes, err := ioutil.ReadFile(path)
 	if err != nil {

@@ -4,7 +4,7 @@ import (
 	"Seven_pokers/model"
 	"Seven_pokers/tool"
 )
-
+// CreateTurn 创建一局游戏
 func CreateTurn(data *model.Data)model.Turn{
 	turn := tool.PutCardIntoHand(data)
 	turn.Alice.Pokers = tool.Sort(turn.Alice.Pokers)
@@ -12,7 +12,9 @@ func CreateTurn(data *model.Data)model.Turn{
 	return turn
 }
 
+// Analyse 分析该轮游戏双方手牌
 func Analyse(turn *model.Turn){
+	// 处理Alice的牌
 	if turn.Alice.Pokers[6].Face == 0{
 		analysesWithZeroCard(&turn.Alice)
 	}else {
@@ -29,6 +31,7 @@ func Analyse(turn *model.Turn){
 		}
 	}
 
+	// 处理Bob的牌
 	if turn.Bob.Pokers[6].Face == 0{
 		analysesWithZeroCard(&turn.Bob)
 	}else {
@@ -46,6 +49,7 @@ func Analyse(turn *model.Turn){
 	}
 }
 
+// JudgeWinner 判断赢家
 func JudgeWinner(turn *model.Turn)*model.Turn{
 	if turn.Alice.Level > turn.Bob.Level{
 		turn.Winner = 1
@@ -62,6 +66,7 @@ func analyseDecks(handCards *model.HandCards){
 	handCards.Deck = tool.GetDeck(handCards.Pokers)
 }
 
+// getLevelByDeck 根据Decks判断手牌等级
 func getLevelByDeck(handCards *model.HandCards){
 	fourOfAKind := 0
 

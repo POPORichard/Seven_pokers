@@ -24,14 +24,8 @@ type Turn struct {
 	Bob HandCards
 	Winner int
 }
-// Feature 每一组牌的特征值
-type Feature struct {
-	Continue int
-	SameCards int
-	Flush bool
-	Finish bool
-}
 
+// HandCards 每位选手的手牌及其特征
 type HandCards struct {
 	Pokers []Poker
 	Deck []Deck
@@ -39,12 +33,14 @@ type HandCards struct {
 	Finish bool
 }
 
+// Deck 牌组 相同牌为一组
 type Deck struct {
 	Face int
 	Quantity int
 	Pinter int
 }
 
+// Series 系列 连续的牌为一个系列
 type Series struct {
 	Length int
 	Pinter int

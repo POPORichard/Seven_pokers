@@ -5,12 +5,7 @@ import (
 	"Seven_pokers/tool"
 )
 
-func AnalysesWithZeroCard(turn *model.Turn) {
-	analysesWithZeroCard(&turn.Alice)
-	analysesWithZeroCard(&turn.Bob)
-
-}
-
+// analysesWithZeroCard 分析有赖子的牌
 func analysesWithZeroCard(handCards *model.HandCards) {
 	var tmpHandCards model.HandCards
 	for i := range handCards.Pokers{
@@ -26,6 +21,7 @@ func analysesWithZeroCard(handCards *model.HandCards) {
 
 }
 
+// analyseDecksWithZeroCard 分析有赖子的牌的Decks
 func analyseDecksWithZeroCard(handCards *model.HandCards) {
 	finish := false
 	handCards.Deck = tool.GetDeck(handCards.Pokers)
@@ -81,6 +77,7 @@ func analyseDecksWithZeroCard(handCards *model.HandCards) {
 
 }
 
+// analyseContinueWithCardZero 分析带有赖子的牌的连续性并处理A
 func analyseContinueWithCardZero(handCards model.HandCards) (tmpHandCards model.HandCards) {
 	flush, color, length := tool.CheckFlush(handCards.Pokers)
 	handCards.Pokers[6].Color = color
@@ -337,6 +334,7 @@ func analyseContinueWithCardZero(handCards model.HandCards) (tmpHandCards model.
 	return
 }
 
+// analyseSeries 分析扑克牌以获得连续性特征:series
 func analyseSeries(pokers []model.Poker) (series []model.Series) {
 	length := len(pokers)
 	jumpOvertimes := 0
@@ -368,6 +366,7 @@ func analyseSeries(pokers []model.Poker) (series []model.Series) {
 	return series
 }
 
+// handleA 在有赖子的情况下处理A
 func handleA(pokers []model.Poker) []model.Poker {
 	a := [4]bool{false}
 
