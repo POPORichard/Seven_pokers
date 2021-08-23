@@ -8,6 +8,7 @@ import (
 // analysesWithZeroCard 分析有赖子的牌
 func analysesWithZeroCard(handCards *model.HandCards) {
 	var tmpHandCards model.HandCards
+	tmpHandCards.Pokers = make([]model.Poker,0,7)
 	for i := range handCards.Pokers{
 		tmpHandCards.Pokers = append(tmpHandCards.Pokers,handCards.Pokers[i])
 	}
@@ -79,8 +80,10 @@ func analyseDecksWithZeroCard(handCards *model.HandCards) {
 
 // analyseContinueWithCardZero 分析带有赖子的牌的连续性并处理A
 func analyseContinueWithCardZero(handCards model.HandCards) (tmpHandCards model.HandCards) {
+	//因同花的等级高于顺子则先判断同花
 	flush, color, length := tool.CheckFlush(handCards.Pokers)
 	handCards.Pokers[6].Color = color
+	// 可以达到同花的条件时
 	if flush {
 		flushSeries := make([]model.Poker, 0, 7)
 		for i := range handCards.Pokers {
@@ -96,6 +99,8 @@ func analyseContinueWithCardZero(handCards model.HandCards) (tmpHandCards model.
 
 		series := analyseSeries(flushSeries)
 		var tmpSeries []model.Series
+
+		// 根据series判断cardZero的插入位置
 		for i := range series {
 			if series[i].Length == 5 {
 				if flushSeries[length-1].Face == 0 {
@@ -184,9 +189,10 @@ func analyseContinueWithCardZero(handCards model.HandCards) (tmpHandCards model.
 			}
 		}
 
+		//若没有cardZero的位置使其连续则cardZero变为最大值
 		flushSeries[len(flushSeries)-1].Face = 14
-		flushSeries = tool.Sort(flushSeries)
-		for t := 0; t < 5; t++ {
+		tmpHandCards.Pokers = append(tmpHandCards.Pokers, flushSeries[len(flushSeries)-1])
+		for t := 0; t < 4; t++ {
 			tmpHandCards.Pokers = append(tmpHandCards.Pokers, flushSeries[t])
 		}
 		tmpHandCards.Level = 6
@@ -198,6 +204,7 @@ func analyseContinueWithCardZero(handCards model.HandCards) (tmpHandCards model.
 	series := analyseSeries(handCards.Pokers)
 	var tmpSeries []model.Series
 	length = len(handCards.Pokers)
+
 	for i := range series {
 		if series[i].Length >4 {
 			if handCards.Pokers[length-1].Face == 0 {

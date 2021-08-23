@@ -161,6 +161,7 @@ func analyseFlush (handCards *model.HandCards){
 	flush, color,length := tool.CheckFlush(handCards.Pokers)
 	if flush {
 		newPokers := make([]model.Poker, 0, 7)
+		//将花色相同的牌放入新的切片中
 		for i := range handCards.Pokers {
 			if handCards.Pokers[i].Color != color {
 				continue
@@ -180,6 +181,27 @@ func analyseFlush (handCards *model.HandCards){
 			handCards.Level = 9
 			handCards.Finish = true
 			return
+		}
+		// A牌需要变为1时
+		if  result == 4 && newPokers[pointer].Face ==5 && newPokers[0].Face == 14{
+			straightPokers := make([]model.Poker,0,5)
+			for i:=0;i<4;i++{
+				if i==0{
+					straightPokers =append(straightPokers,newPokers[pointer+i])
+					continue
+				}
+				if straightPokers[i-1].Face == newPokers[pointer+i].Face{
+					pointer++
+					i--
+				}else{
+					straightPokers =append(straightPokers,newPokers[pointer+i])
+				}
+			}
+			newPokers[0].Face = 1
+			straightPokers = append(straightPokers,newPokers[0])
+			handCards.Pokers = straightPokers
+			handCards.Level = 9
+			handCards.Finish = true
 		}
 		if handCards.Level<6{
 			handCards.Level = 6
@@ -213,6 +235,8 @@ func analyseContinue(handCards *model.HandCards){
 		handCards.Level = 5
 		handCards.Finish = true
 	}
+
+	// A牌需要变为1时
 	if isStraight && result == 4 && handCards.Pokers[pointer].Face ==5 && handCards.Pokers[0].Face == 14{
 		newPokers := make([]model.Poker,0,5)
 		for i:=0;i<4;i++{

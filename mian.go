@@ -16,7 +16,7 @@ func main () {
 		handler.Analyse(&turn)
 		handler.JudgeWinner(&turn)
 		if turn.Winner != data[i].Result {
-			outPutErrormsg(turn,data[i])
+			outPutErrors(turn,data[i])
 			panic("result wrong")
 		}
 	}
@@ -24,7 +24,7 @@ func main () {
 	fmt.Println("成功！ 耗时：", cost)
 }
 
-func outPutErrormsg(turn model.Turn,data model.Data){
+func outPutErrors(turn model.Turn,data model.Data){
 	fmt.Println("-----Error-----")
 	fmt.Println(data.Alice)
 	fmt.Println("Alice.Pokers:")
