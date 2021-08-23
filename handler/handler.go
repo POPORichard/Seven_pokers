@@ -15,7 +15,7 @@ func CreateTurn(data *model.Data)model.Turn{
 // Analyse 分析该轮游戏双方手牌
 func Analyse(turn *model.Turn){
 	// 处理Alice的牌
-	if turn.Alice.Pokers[6].Face == 0{
+	if turn.Alice.Pokers[len(turn.Alice.Pokers)-1].Face == 0{
 		turn.Alice = analysesWithZeroCard(turn.Alice)
 	}else {
 		analyseDecks(&turn.Alice)
@@ -32,7 +32,7 @@ func Analyse(turn *model.Turn){
 	}
 
 	// 处理Bob的牌
-	if turn.Bob.Pokers[6].Face == 0{
+	if turn.Bob.Pokers[len(turn.Bob.Pokers)-1].Face == 0{
 		turn.Bob = analysesWithZeroCard(turn.Bob)
 	}else {
 		analyseDecks(&turn.Bob)
@@ -111,7 +111,7 @@ func sortByDeck(handCardsCards *model.HandCards) {
 	newPokers := make([]model.Poker,0,5)
 	decks := tool.SortDeck(handCardsCards.Deck)
 	num := 0
-	if handCardsCards.Level == 3{
+	if len(handCardsCards.Pokers)>5 && handCardsCards.Level == 3{
 		newPokers = append(newPokers,handCardsCards.Pokers[decks[0].Pinter])
 		newPokers = append(newPokers,handCardsCards.Pokers[decks[0].Pinter+1])
 		newPokers = append(newPokers,handCardsCards.Pokers[decks[1].Pinter])
@@ -122,7 +122,7 @@ func sortByDeck(handCardsCards *model.HandCards) {
 			newPokers = append(newPokers,handCardsCards.Pokers[decks[3].Pinter])
 		}
 
-	}else if handCardsCards.Level == 8{
+	}else if len(handCardsCards.Pokers)>5 && handCardsCards.Level == 8{
 		newPokers = append(newPokers,handCardsCards.Pokers[decks[0].Pinter])
 		newPokers = append(newPokers,handCardsCards.Pokers[decks[0].Pinter+1])
 		newPokers = append(newPokers,handCardsCards.Pokers[decks[0].Pinter+2])

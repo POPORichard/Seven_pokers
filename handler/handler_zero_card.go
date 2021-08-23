@@ -7,27 +7,18 @@ import (
 
 // analysesWithZeroCard 分析有赖子的牌
 func analysesWithZeroCard(handCards model.HandCards)model.HandCards {
+
 	var tmpHandCardsForDecks model.HandCards
-	var tmpHandCardsForSeries model.HandCards
-
 	tmpHandCardsForDecks.Pokers = make([]model.Poker,7,7)
-	tmpHandCardsForSeries.Pokers = make([]model.Poker,7,7)
-
 	copy(tmpHandCardsForDecks.Pokers,handCards.Pokers)
-	copy(tmpHandCardsForSeries.Pokers,handCards.Pokers)
 
 	tmpHandCardsForDecks = analyseDecksWithZeroCard(tmpHandCardsForDecks)
 	tmpHandCardsForDecks = getLevelByDeck(tmpHandCardsForDecks)
-
-	tmpHandCardsForSeries = analyseContinueWithCardZero(tmpHandCardsForSeries)
-
-	if tmpHandCardsForSeries.Level > tmpHandCardsForDecks.Level {
-		handCards = tmpHandCardsForSeries
-	}else {
+	handCards = analyseContinueWithCardZero(handCards)
+	if handCards.Level < tmpHandCardsForDecks.Level {
 		sortByDeck(&tmpHandCardsForDecks)
 		handCards = tmpHandCardsForDecks
 	}
-
 	return handCards
 }
 

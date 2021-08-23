@@ -10,6 +10,7 @@ import (
 func main () {
 	start := time.Now()
 	data := handler.ReadDataToModel("./seven_cards_with_ghost.result.json")
+	//data := handler.ReadDataToModel("./match_result.json")
 
 	for i := range data {
 		turn := handler.CreateTurn(&data[i])
