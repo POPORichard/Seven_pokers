@@ -81,6 +81,7 @@ func analyseDecksWithZeroCard(handCards model.HandCards)model.HandCards {
 
 // analyseContinueWithCardZero 分析带有赖子的牌的连续性并处理A
 func analyseContinueWithCardZero(handCards model.HandCards)(tmpHandCards model.HandCards) {
+	tmpHandCards.Pokers = make([]model.Poker,0,5)
 	//因同花的等级高于顺子则先判断同花
 	flush, color, length := tool.CheckFlush(handCards.Pokers)
 	handCards.Pokers[6].Color = color
@@ -93,19 +94,15 @@ func analyseContinueWithCardZero(handCards model.HandCards)(tmpHandCards model.H
 			}
 		}
 
-		// 这里可以在最开始处理A因没有重复的牌
-		if flushSeries[0].Face == 14 {
-			flushSeries = handleA(flushSeries)
-			flushSeries = tool.Sort(flushSeries)
-		}
-
 		series := analyseSeries(flushSeries)
 		var tmpSeries []model.Series
 
 		// 根据series判断cardZero的插入位置
 		for i := range series {
+			//若连续的长度已经达到5 则把cardZero加在最前面
 			if series[i].Length == 5 {
 				if flushSeries[length-1].Face == 0 {
+					//若最大的一个值为14则无法有更大值 将cardZero加在这个连续的队尾
 					if flushSeries[series[i].Pinter].Face == 14 {
 						flushSeries[length-1].Face = flushSeries[series[i].Pinter+series[i].Length-1].Face - 1
 					} else {
@@ -126,9 +123,10 @@ func analyseContinueWithCardZero(handCards model.HandCards)(tmpHandCards model.H
 				tmpHandCards.Finish = true
 				return
 			}
-
+			//若连续的长度已经达到4 则把cardZero加在最前面
 			if series[i].Length == 4 {
 				if flushSeries[series[i].Pinter].Face == 14 {
+					//若最大的一个值为14则无法有更大值 将cardZero加在这个连续的队尾
 					flushSeries[length-1].Face = flushSeries[series[i].Pinter+series[i].Length-1].Face - 1
 				} else {
 					flushSeries[length-1].Face = flushSeries[series[i].Pinter].Face + 1
@@ -148,6 +146,7 @@ func analyseContinueWithCardZero(handCards model.HandCards)(tmpHandCards model.H
 			}
 
 			if i+2 < len(series) {
+				//若连续的方式形如8、7、5、4 则cardZero需要加在中间以连起来
 				if series[i].Length > 1 && series[i+1].Length > 1 && flushSeries[series[i].Pinter].Face-3 == flushSeries[series[i+1].Pinter].Face {
 					flushSeries[length-1].Face = flushSeries[series[i].Pinter].Face - 2
 					tmpSeries = analyseSeries(flushSeries)
@@ -158,6 +157,7 @@ func analyseContinueWithCardZero(handCards model.HandCards)(tmpHandCards model.H
 					tmpHandCards.Finish = true
 					return
 				}
+				//若连续的方式形如8、6、5、4 则cardZero需要加在中间以连起来
 				if series[i].Length > 0 && series[i+1].Length > 2 && flushSeries[series[i].Pinter].Face-2 == flushSeries[series[i+1].Pinter].Face {
 					flushSeries[length-1].Face = flushSeries[series[i].Pinter].Face - 1
 					flushSeries = tool.Sort(flushSeries)
@@ -173,6 +173,7 @@ func analyseContinueWithCardZero(handCards model.HandCards)(tmpHandCards model.H
 					tmpHandCards.Finish = true
 					return
 				}
+				//若连续的方式形如8、7、6、4 则cardZero需要加在中间以连起来
 				if series[i].Length > 2 && series[i+1].Length > 0 && flushSeries[series[i].Pinter].Face-4 == flushSeries[series[i+1].Pinter].Face {
 					flushSeries[length-1].Face = flushSeries[series[i].Pinter].Face - 3
 					flushSeries = tool.Sort(flushSeries)
@@ -191,6 +192,29 @@ func analyseContinueWithCardZero(handCards model.HandCards)(tmpHandCards model.H
 			}
 		}
 
+		// 判断A
+		if flushSeries[0].Face == 14 {
+			flushSeries = handleA(flushSeries)
+			flushSeries = tool.Sort(flushSeries)
+			//若A成功变为1
+			if flushSeries[0].Face != 14{
+				tmpSeries = analyseSeries(flushSeries)
+				target:=0
+				for a := range tmpSeries{
+					if tmpSeries[a].Length > 4{target = a}
+				}
+				add :=0
+				tmp := 0
+				for t := 0; t < 5; t++ {
+					if flushSeries[t+tmpSeries[target].Pinter+add].Face == tmp{add++}
+					tmp = flushSeries[t+tmpSeries[target].Pinter+add].Face
+					tmpHandCards.Pokers = append(tmpHandCards.Pokers,flushSeries[t+tmpSeries[target].Pinter+add])
+				}
+				tmpHandCards.Level = 9
+				return
+			}
+		}
+
 		//若没有cardZero的位置使其连续则cardZero变为最大值
 		flushSeries[len(flushSeries)-1].Face = 14
 		tmpHandCards.Pokers = append(tmpHandCards.Pokers, flushSeries[len(flushSeries)-1])
@@ -202,7 +226,7 @@ func analyseContinueWithCardZero(handCards model.HandCards)(tmpHandCards model.H
 
 	}
 
-	//在非同花的情况下需要注意重复的牌
+	//在非同花的情况下需要注意重复的牌 其余添加cardZero的情况与上面相同
 	series := analyseSeries(handCards.Pokers)
 	var tmpSeries []model.Series
 	length = len(handCards.Pokers)
@@ -318,11 +342,11 @@ func analyseContinueWithCardZero(handCards model.HandCards)(tmpHandCards model.H
 		}
 	}
 
-	// 处理A
+	// 因改变A获得的顺子最小，因此最后处理A
 	if handCards.Pokers[0].Face == 14 {
 		handCards.Pokers = handleA(handCards.Pokers)
 		handCards.Pokers = tool.Sort(handCards.Pokers)
-		//A被处理了
+		//若A成功变为1
 		if handCards.Pokers[0].Face != 14{
 			tmpSeries = analyseSeries(handCards.Pokers)
 			target:=0
@@ -347,6 +371,7 @@ func analyseContinueWithCardZero(handCards model.HandCards)(tmpHandCards model.H
 
 // analyseSeries 分析扑克牌以获得连续性特征:series
 func analyseSeries(pokers []model.Poker) (series []model.Series) {
+	series = make([]model.Series,0,3)
 	length := len(pokers)
 	jumpOvertimes := 0
 
