@@ -1,7 +1,7 @@
 package tool
 
 import (
-	"Seven_pokers/model"
+	"Seven_pokers/internal/model"
 	"strconv"
 )
 
@@ -46,7 +46,8 @@ func PutCardIntoHand(data *model.Data) (turn model.Turn) {
 }
 
 // Sort 把牌按Face从大到小排列
-func Sort(pokers []model.Poker)[]model.Poker{
+// 返回排列好的牌
+func Sort(pokers []model.Poker)[]model.Poker {
 	var tmp model.Poker
 	length := len(pokers)
 
@@ -72,6 +73,7 @@ func Sort(pokers []model.Poker)[]model.Poker{
 }
 
 // CheckFlush 检查是否满足同花条件
+// 返回是否满足同花条件bool\同花颜色string\同花长度int
 func CheckFlush(pokers []model.Poker)(isFlush bool, color string,length int){
 	isFlush = false
 	hasCardZero := false
@@ -150,6 +152,7 @@ func CheckContinueLength(pokers []model.Poker)(bool,int,int){
 }
 
 // GetDeck 获得一组牌的牌组Decks
+// 返回Decks切片
 func GetDeck (pokers []model.Poker)(decks []model.Deck){
 	length := len(pokers)
 	quantity := 1
@@ -163,14 +166,14 @@ func GetDeck (pokers []model.Poker)(decks []model.Deck){
 		if pokers[i].Face != pokers[i+1].Face{
 			face = pokers[i].Face
 			pointer = i-quantity+1
-			deck := model.Deck{Face:face,Quantity:quantity,Pinter:pointer}
+			deck := model.Deck{Face: face,Quantity:quantity,Pinter:pointer}
 			decks = append(decks,deck)
 			quantity = 1
 		}
 		if i == length -2{
 			face = pokers[i+1].Face
 			pointer = i-quantity+2
-			deck := model.Deck{Face:face,Quantity:quantity,Pinter:pointer}
+			deck := model.Deck{Face: face,Quantity:quantity,Pinter:pointer}
 			decks = append(decks,deck)
 
 		}
@@ -179,7 +182,8 @@ func GetDeck (pokers []model.Poker)(decks []model.Deck){
 }
 
 // SortDeck 对牌组进行排序使相同牌数多的牌组排在前面\次要排序按牌面大小排序
-func SortDeck (decks []model.Deck)[]model.Deck{
+// 返回排序后的Decks切片
+func SortDeck (decks []model.Deck)[]model.Deck {
 	newDecks := make([]model.Deck,0,7)
 	length := len(decks)
 	longest := decks[0].Quantity

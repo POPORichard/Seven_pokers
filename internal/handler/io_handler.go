@@ -1,13 +1,13 @@
 package handler
 
 import (
-	"Seven_pokers/model"
+	"Seven_pokers/internal/model"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 )
 // ReadDataToModel 读取外部文件
-func ReadDataToModel(path string)[]model.Data{
+func ReadDataToModel(path string)[]model.Data {
 	bytes, err := ioutil.ReadFile(path)
 	if err != nil {
 		fmt.Println("读取json文件失败", err)
@@ -21,7 +21,6 @@ func ReadDataToModel(path string)[]model.Data{
 		return nil
 	}
 
-	//length := len(inputData.Matches)
 
 	data := inputData.Matches
 	return data

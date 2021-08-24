@@ -1,12 +1,14 @@
 package handler
 
 import (
-	"Seven_pokers/model"
-	"Seven_pokers/tool"
+	"Seven_pokers/internal/model"
+	"Seven_pokers/internal/tool"
 )
 
 // analysesWithZeroCard 分析有赖子的牌
-func analysesWithZeroCard(handCards model.HandCards)model.HandCards {
+// 两种可能性：赖子牌用于构建连续顺子 或者 赖子牌用来与相同的牌构成牌组
+// 从以上两种方面来构建可能的牌组并比较两者的Level来决定最后选择的5张牌
+func analysesWithZeroCard(handCards model.HandCards) model.HandCards {
 
 	var tmpHandCardsForDecks model.HandCards
 	tmpHandCardsForDecks.Pokers = make([]model.Poker,7,7)
@@ -23,7 +25,10 @@ func analysesWithZeroCard(handCards model.HandCards)model.HandCards {
 }
 
 // analyseDecksWithZeroCard 分析有赖子的牌的Decks
-func analyseDecksWithZeroCard(handCards model.HandCards)model.HandCards {
+// 使赖子牌变为相同牌数最多的牌
+// 若该牌已有4张则赖子牌变为14
+// 返回价值最高的5张牌
+func analyseDecksWithZeroCard(handCards model.HandCards) model.HandCards {
 	finish := false
 	handCards.Deck = tool.GetDeck(handCards.Pokers)
 	decks := handCards.Deck
@@ -79,14 +84,17 @@ func analyseDecksWithZeroCard(handCards model.HandCards)model.HandCards {
 
 }
 
-// analyseContinueWithCardZero 分析带有赖子的牌的连续性并处理A
+// analyseContinueWithCardZero 分析带有赖子的牌的连续性和同花可能并处理A
+// 返回能够构成顺子且最大的5张牌，若无法满足顺子条件则返回原来的7张牌
 func analyseContinueWithCardZero(handCards model.HandCards)(tmpHandCards model.HandCards) {
 	tmpHandCards.Pokers = make([]model.Poker,0,5)
 	//因同花的等级高于顺子则先判断同花
 	flush, color, length := tool.CheckFlush(handCards.Pokers)
+	//赖子牌花色始终为最多数的花色
 	handCards.Pokers[6].Color = color
 	// 可以达到同花的条件时
 	if flush {
+		//将同花牌转移到新的切片中
 		flushSeries := make([]model.Poker, 0, 7)
 		for i := range handCards.Pokers {
 			if handCards.Pokers[i].Color == color {
@@ -373,7 +381,7 @@ func analyseContinueWithCardZero(handCards model.HandCards)(tmpHandCards model.H
 func analyseSeries(pokers []model.Poker) (series []model.Series) {
 	series = make([]model.Series,0,3)
 	length := len(pokers)
-	jumpOvertimes := 0
+	jumpOvertimes := 0	//遇到相同的牌时需要跳步以确保Pinter总是指向连续的开头
 
 	i:=0
 	t := 1
@@ -394,6 +402,7 @@ func analyseSeries(pokers []model.Poker) (series []model.Series) {
 		}
 	}
 
+	// 最后一张牌需要单独处理以以避免循环越界
 	series = append(series, model.Series{
 		Length: t,
 		Pinter: i - t - jumpOvertimes + 1,
@@ -402,10 +411,12 @@ func analyseSeries(pokers []model.Poker) (series []model.Series) {
 	return series
 }
 
-// handleA 在有赖子的情况下处理A
+// handleA 在有赖子的情况下判断A变为1是否可以组成最小的顺子
+// 若可以组成顺子则返回5张顺子牌，否则返回输入的牌
 func handleA(pokers []model.Poker) []model.Poker {
 	a := [4]bool{false}
 
+	//判断5、4、3、2中缺少哪些牌
 	for i := range pokers {
 		if pokers[i].Face == 5 {
 			a[0] = true
@@ -421,7 +432,7 @@ func handleA(pokers []model.Poker) []model.Poker {
 		}
 	}
 	t := 0
-	need := 0
+	need := 0	//需要赖子变成的牌
 	for i := range a {
 		if a[i] {
 			t++
@@ -430,6 +441,7 @@ func handleA(pokers []model.Poker) []model.Poker {
 		}
 	}
 
+	//可以通过A牌的变化和赖子牌组成最小的顺子
 	if t > 2 {
 		pokers[0].Face = 1
 		pokers[len(pokers)-1].Face = need

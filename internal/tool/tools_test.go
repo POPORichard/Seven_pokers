@@ -1,7 +1,7 @@
 package tool
 
 import (
-	"Seven_pokers/model"
+	"Seven_pokers/internal/model"
 	"fmt"
 	"testing"
 )

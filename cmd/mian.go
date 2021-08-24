@@ -1,15 +1,15 @@
 package main
 
 import (
-	"Seven_pokers/handler"
-	"Seven_pokers/model"
+	"Seven_pokers/internal/handler"
+	"Seven_pokers/internal/model"
 	"fmt"
 	"time"
 )
 
 func main () {
 	start := time.Now()
-	data := handler.ReadDataToModel("./seven_cards_with_ghost.result.json")
+	data := handler.ReadDataToModel("./test/seven_cards_with_ghost.result.json")
 	//data := handler.ReadDataToModel("./match_result.json")
 
 	for i := range data {
@@ -25,6 +25,7 @@ func main () {
 	fmt.Println("成功！ 耗时：", cost)
 }
 
+// outPutErrors 输出错误时的信息
 func outPutErrors(turn model.Turn,data model.Data){
 	fmt.Println("-----Error-----")
 	fmt.Println(data.Alice)
